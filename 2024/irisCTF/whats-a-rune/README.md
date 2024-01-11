@@ -46,7 +46,7 @@ the:
 iÛÛÜÖ×ÚáäÈÑ¥gebªØÔÍãâ£i¥§²ËÅÒÍÈä
 ```
 
-To reverse we can just subtract the previous rune from the current rune. Since we have the first rune `i` and use it as the first previous rune, we can just subtract the first rune from the second rune and so on.
+To reverse we can just subtract the previous rune from the current rune. Since we have the first rune `i` and use it as the first previous rune.
 
 ```py
 try:
