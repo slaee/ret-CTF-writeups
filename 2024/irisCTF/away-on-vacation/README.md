@@ -20,6 +20,6 @@ There is a hint that he mostly talks about birds on his social media. So we can 
 [INSTAGRAM]
 https://www.instagram.com/michelangelo_corning/
 
-![Alt text](images/image.png)
+![Alt text](chall/image.png)
 
 irisctf{pub1ic_4cc0unt5_4r3_51tt1ng_duck5}
