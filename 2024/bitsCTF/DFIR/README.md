@@ -195,7 +195,7 @@ def generate_key():
 
 
 def encrypt_file(file_path, key):
-    iv = b'tt'
+    iv = b'urfuckedmogambro'
     with open(file_path, 'rb') as (file):
         data = file.read()
         padded_data = pad(data, AES.block_size)
@@ -234,7 +234,7 @@ This function will generate a random key and will be stored as tempory file. Sin
 
 ```py
 def encrypt_file(file_path, key):
-    iv = b'tt'
+    iv = b'urfuckedmogambro'
     with open(file_path, 'rb') as (file):
         data = file.read()
         padded_data = pad(data, AES.block_size)
@@ -246,7 +246,7 @@ def encrypt_file(file_path, key):
         encrypted_file.write(encrypted_data)
     os.remove(file_path)
 ```
-By means, the `secret.png` file was encrypted with `AES` and in `CBC` mode and the `iv` was `tt`.
+By means, the `secret.png` file was encrypted with `AES` and in `CBC` mode and the `iv` was `urfuckedmogambro`.
 
 To know where the temporary file was stored, I found a [tutorial](https://www.askpython.com/python-modules/tempfile-module-in-python) which talks about python `TemporaryFile` in linux. But in Windows is `C:\Users\mogambro\AppData\Local\Temp` and the file name is `tmpxxxxx` where `xxxxx` is a random string.
 
