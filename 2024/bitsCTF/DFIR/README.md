@@ -270,7 +270,7 @@ def decrypt(key, encrypted_data, iv):
     decrypted_data = cipher.decrypt(encrypted_data)
     return unpad(decrypted_data, AES.block_size)
 
-iv = 'tt'.encode('utf-8')
+iv = 'urfuckedmogambro'.encode('utf-8')
 
 decrypted_data = decrypt(key, encrypted_data, iv)
 
